@@ -12,6 +12,7 @@
 
 
 int sendData(unsigned char sendData[],libusb_device_handle *handler,int size);
+uint8_t* receiveData(libusb_device_handle *handler,int size);
 
 int main(int argc, char *argv[])
 {
@@ -30,19 +31,19 @@ int main(int argc, char *argv[])
 	libusb_device_handle *h =NULL;
 	unsigned char data[] = { 1, 3,message};
 	unsigned char rumble[] = {0x0,0x8,0x0,0xFF,0xFF,0x0,0x0,0x0};
-	uint8_t receive[20];
+	unsigned char receive[20];
 	h = libusb_open_device_with_vid_pid(NULL,deviceVendorID, deviceProductID);
 	if (h != NULL) {
 		
 		while(1)
 			{
 				int received;
-				int r = libusb_interrupt_transfer(h , readEndpointAddress ,receive,sizeof(receive), &received, 0);				
+				int r = libusb_interrupt_transfer(h, readEndpointAddress ,receive,sizeof(receive), &received, 0);				
 				if(r == 0)
-					for(int i=0;i<20;i++)
-						printf("Data: %x\n",receive[i]);
+					for(int i=1;i<9;i++){
+						printf("%x \t",receive[i]);
+					}
 					printf("\n");
-
 			}					
 	}
 	libusb_close(h);
@@ -57,4 +58,13 @@ int sendData(unsigned char sendData[],libusb_device_handle *handler,int size){
 		else
 			printf("Failed sending");
 	return send_status;			
+}
+uint8_t* receiveData(libusb_device_handle *handler,int size){
+		uint8_t* receive=malloc(sizeof(uint8_t)*20);
+		int received;
+		int r = libusb_interrupt_transfer(handler, readEndpointAddress ,receive,sizeof(receive), &received, 0);				
+		if(r == 0)
+			return receive;
+		return NULL;
+			
 }

@@ -4,15 +4,22 @@
 #Author:Nshuti Yvan CHristian
 
 .PHONY:clean
-rasp:main.c
-	arm-linux-gcc main.c -o appRas -lusb-1.0
-	@echo Done making target code
-app:main.c
-	gcc main.c -o app -lusb-1.0
-	@echo Done making host code
+
+all:appRas.o app.o
+	arm-linux-gcc -o appRas appRas.o -lusb-1.0
+	@echo Done compiling for target
+	gcc -o app app.o -lusb-1.0
+	@echo Done compiling for host	
+appRas.o:main.c
+	arm-linux-gcc -c -o appRas.o main.c
+	@echo Done making object file code		
+app.o:main.c
+	gcc -c -o app.o  main.c  
+	@echo Done making host object file code
+
 send:appRas
 	scp appRas root@10.0.0.42:/root
 	ssh root@10.0.0.42		
 clean:
-	rm -rf main.o app appRas
+	rm -rf appRas.o app appRas
 	@echo Done cleaning up
