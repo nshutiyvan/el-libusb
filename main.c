@@ -17,38 +17,37 @@ uint8_t* receiveData(libusb_device_handle *handler,int size);
 int main(int argc, char *argv[])
 {
 	int argCount = argc;
-	uint8_t message = 0x0A;
 	char* s1=argv[1];
 	char* s2=argv[2];
-	switch(argCount){
-		case 2:
-			if(s2 != NULL){
-					
-			}
-
-	}
 	libusb_init(NULL);
 	libusb_device_handle *h =NULL;
-	unsigned char data[] = { 1, 3,message};
+	unsigned char data[] = { 1, 3,0x00};
 	unsigned char rumble[] = {0x0,0x8,0x0,0xFF,0xFF,0x0,0x0,0x0};
 	unsigned char receive[20];
+	printf("New program\n");
 	h = libusb_open_device_with_vid_pid(NULL,deviceVendorID, deviceProductID);
-	if (h != NULL) {
-		
-		while(1)
-			{
+	if (h != NULL) {	
+		while(1){
+				
 				int received;
 				int r = libusb_interrupt_transfer(h, readEndpointAddress ,receive,sizeof(receive), &received, 0);				
-				if(r == 0)
-					for(int i=1;i<9;i++){
-						printf("%x \t",receive[i]);
-					}
-					printf("\n");
-			}					
+				if(r == 0){
+					if(receive[3] == 0x10)	
+						printf("Pressed A \n");
+					else if(receive[3] == 0x20)	
+						printf("Pressed B \n");
+					else if(receive[3] == 0x40)
+						printf("Pressed X \n");
+					else if(receive[3] == 0x80)
+						printf("Pressed Y \n");					
+				}
+		}					
+								
 	}
 	libusb_close(h);
     libusb_exit(NULL);
     return 0;
+	
 }
 int sendData(unsigned char sendData[],libusb_device_handle *handler,int size){
 	int transferred;

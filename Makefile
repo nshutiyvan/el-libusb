@@ -5,11 +5,9 @@
 
 .PHONY:clean
 
-all:appRas.o app.o
+appRas:appRas.o
 	arm-linux-gcc -o appRas appRas.o -lusb-1.0
-	@echo Done compiling for target
-	gcc -o app app.o -lusb-1.0
-	@echo Done compiling for host	
+	@echo Done compiling for target	
 appRas.o:main.c
 	arm-linux-gcc -c -o appRas.o main.c
 	@echo Done making object file code		
