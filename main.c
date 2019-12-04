@@ -14,7 +14,7 @@
 int sendData(unsigned char sendData[],libusb_device_handle *handler,int size);
 uint8_t* receiveData(libusb_device_handle *handler,int size);
 int manageLights(libusb_device_handle *handler,uint8_t packet);
-int manageRumble(libusb_device_handle *handler,uint8_t packet);
+int manageRumble(libusb_device_handle *handler,uint8_t packetLet,uint8_t packetRight);
 
 int main(int argc, char *argv[])
 {
@@ -50,12 +50,26 @@ int main(int argc, char *argv[])
 						//printf("Pressed Y \n");
 						manageLights(h,(uint8_t)0x08);
 					
+					}else if(receive[4] == 0x02){
+						printf("Pressed the home button");
 					}
-					else if(receive[3] == 0x10 && receive[2]==0x04){
-						manageRumble(h,(uint8_t)0xFF);
+					
+					else if(receive[2]==0x04){
+						manageRumble(h,(uint8_t)0xFF,(uint8_t)0x00);
 					}
-					printf("\n");
-					printf("%x \t",receive[2]);					
+					else if(receive[2]==0x08){
+						manageRumble(h,(uint8_t)0x00,(uint8_t)0xFF);
+					}
+					else if(receive[2]==0x01){
+						manageRumble(h,(uint8_t)0xFF,(uint8_t)0xFF);
+					}
+					else if(receive[2]==0x02){
+						manageRumble(h,(uint8_t)0x00,(uint8_t)0x00);
+					}
+					
+					for(int i=0;i<5;i++)
+						printf("%x \t",receive[i]);
+					printf("\n");							
 				}
 		}					
 								
@@ -73,8 +87,8 @@ int manageLights(libusb_device_handle *handler,uint8_t packet){
 	unsigned char message[] = {1, 3,packet};
 	return sendData(message,handler,sizeof(message));
 }
-int manageRumble(libusb_device_handle *handler,uint8_t packet){
-	unsigned char message[] = {0x0,0x8,0x0,packet,0xFF,0x0,0x0,0x0};
+int manageRumble(libusb_device_handle *handler,uint8_t packetLeft,uint8_t packetRight){
+	unsigned char message[] = {0x0,0x8,0x0,packetLeft,packetRight,0x0,0x0,0x0};
 	return sendData(message,handler,sizeof(message));
 }
 uint8_t* receiveData(libusb_device_handle *handler,int size){
